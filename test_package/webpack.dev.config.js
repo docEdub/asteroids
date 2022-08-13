@@ -9,6 +9,7 @@ module.exports = {
         open: true,
         watchFiles: ["./src/**/*", "../app_package/lib/**/*"]
     },
+    devtool: "eval-cheap-source-map",
     output: {
         path: path.resolve(__dirname, "../docs"),
         filename: "bundle.js"
