@@ -42,6 +42,18 @@ export class KeyboardInput {
                     this.rollClockwiseIsPressed = pressed
                     break
             }
+
+            if (pressed) {
+                switch (key) {
+                    case "Enter":
+                        if (!document.fullscreenElement) {
+                            document.documentElement.requestFullscreen()
+                        } else if (document.exitFullscreen) {
+                            document.exitFullscreen()
+                        }
+                        break
+                }
+            }
         })
 
         scene.onAfterRenderObservable.add((scene, state) => {
