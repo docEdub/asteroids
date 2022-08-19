@@ -15,31 +15,33 @@ export class MainScene extends Scene {
     constructor (engine: Engine) {
         super(engine)
 
+        new UniversalCamera("Camera", Vector3.ZeroReadOnly)
+
         const keyboardInput = new KeyboardInput(this)
-
-        const camera = new UniversalCamera("Camera", Vector3.ZeroReadOnly)
-
-        const world = new World(this)
         const playerShip = new PlayerShip(this)
+        const world = new World(this)
 
         this.onBeforeRenderObservable.add((scene, state) => {
             playerShip.resetOrientation()
+
             if (keyboardInput.pitchNoseDownIsPressed) {
                 playerShip.pitchDown()
             }
             if (keyboardInput.pitchNoseUpIsPressed) {
                 playerShip.pitchUp()
             }
+
             if (keyboardInput.yawNoseRightIsPressed) {
                 playerShip.yawRight()
             }
             if (keyboardInput.yawNoseLeftIsPressed) {
                 playerShip.yawLeft()
             }
-            if (keyboardInput.rollCounterClockwiseIsPressed) {
+
+            if (keyboardInput.rollLeftIsPressed) {
                 playerShip.rollLeft()
             }
-            if (keyboardInput.rollClockwiseIsPressed) {
+            if (keyboardInput.rollRightIsPressed) {
                 playerShip.rollRight()
             }
 

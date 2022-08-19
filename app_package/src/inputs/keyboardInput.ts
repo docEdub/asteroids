@@ -36,10 +36,10 @@ export class KeyboardInput {
                     break
 
                 case "a":
-                    this.rollCounterClockwiseIsPressed = pressed
+                    this.rollLeftIsPressed = pressed
                     break
                 case "d":
-                    this.rollClockwiseIsPressed = pressed
+                    this.rollRightIsPressed = pressed
                     break
             }
 
@@ -69,6 +69,6 @@ export class KeyboardInput {
     public yawNoseRightIsPressed: boolean = false
     public pitchNoseUpIsPressed: boolean = false
     public pitchNoseDownIsPressed: boolean = false
-    public rollClockwiseIsPressed: boolean = false
-    public rollCounterClockwiseIsPressed: boolean = false
+    public rollRightIsPressed: boolean = false
+    public rollLeftIsPressed: boolean = false
 }
