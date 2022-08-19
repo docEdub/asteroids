@@ -77,6 +77,28 @@ export class MainScene extends Scene {
             }
         })
 
-        document.getElementById("renderCanvas")!.focus() // Get keyboard input working without clicking on screen.
+        // Get keyboard input working without clicking on screen.
+        document.getElementById("renderCanvas")!.focus()
+
+        // Show the UI for 4 seconds when the mouse moves; otherwise hide it.
+        let showUiTimeoutId = 0
+
+        const showUi = () => {
+            clearTimeout(showUiTimeoutId)
+
+            document.body.style.cursor = "auto"
+
+            showUiTimeoutId = setTimeout(hideUi, 4000)
+        }
+
+        const hideUi = () => {
+            document.body.style.cursor = "none"
+        }
+
+        showUi()
+
+        document.onmousemove = () => {
+            showUi()
+        }
     }
 }
