@@ -15,6 +15,7 @@ export class MainScene extends Scene {
     constructor (engine: Engine) {
         super(engine)
 
+        this.clearColor.set(0, 0, 0, 1)
         new UniversalCamera("Camera", Vector3.ZeroReadOnly)
 
         const keyboardInput = new KeyboardInput(this)
