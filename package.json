@@ -5,7 +5,7 @@
   "private": "true",
   "scripts": {
     "install": "npm-recursive-install --skip-root",
-    "dev": "concurrently \"npm --prefix ./app_package run dev\" \"npm --prefix ./test_package run dev\"",
+    "dev": "npm run build && concurrently \"npm --prefix ./app_package run dev\" \"npm --prefix ./test_package run dev\"",
     "build": "npm --prefix ./app_package run build && npm --prefix ./test_package run build"
   },
   "keywords": [],
