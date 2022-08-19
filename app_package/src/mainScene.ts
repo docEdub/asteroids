@@ -17,7 +17,8 @@ export class MainScene extends Scene {
 
         const keyboardInput = new KeyboardInput(this)
 
-        new UniversalCamera("Camera", Vector3.ZeroReadOnly)
+        const camera = new UniversalCamera("Camera", Vector3.ZeroReadOnly)
+
         const world = new World(this)
         const playerShip = new PlayerShip(this)
 
@@ -72,5 +73,7 @@ export class MainScene extends Scene {
                 world.translate(Constant.ZAxis, -playerShip.thrust, Space.WORLD)
             }
         })
+
+        document.getElementById("renderCanvas")!.focus() // Get keyboard input working without clicking on screen.
     }
 }
