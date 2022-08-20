@@ -1,11 +1,14 @@
 import {
     Engine,
+    MeshBuilder,
     Scene,
+    StandardMaterial,
     TransformNode,
 } from "@babylonjs/core";
+import { World } from "./world"
 
 export class PlayerShip extends TransformNode {
-    private static readonly AngleIncrement = 0.01
+    private static readonly AngleIncrement = 0.015
     private static readonly ThrustIncrement = 0.01
     private static readonly MaxThrust = 5
 
@@ -15,7 +18,20 @@ export class PlayerShip extends TransformNode {
     constructor () {
         const scene = Engine.LastCreatedScene!
         super("PlayerShip", scene);
-        scene.onBeforeRenderObservable.runCoroutineAsync(this._onBeforeRender());
+
+        const hullMaterial = new StandardMaterial("PlayerShip.Hull")
+        hullMaterial.backFaceCulling = false
+        hullMaterial.diffuseColor.set(1, 1, 1)
+        hullMaterial.emissiveColor.set(1, 1, 1)
+        hullMaterial.wireframe = true
+
+        const hull = this._hull
+        hull.material = hullMaterial
+        hull.position.set(0, 0, 100)
+        hull.scaling.setAll(10)
+        hull.setParent(this)
+
+        World.Sectorize(hull)
     }
 
     public pitch = 0
@@ -77,7 +93,9 @@ export class PlayerShip extends TransformNode {
 
     }
 
-    private *_onBeforeRender() {
-        yield;
-    }
+    private _hull = MeshBuilder.CreateCylinder("PlayerShip.Hull", {
+        diameterTop: 0,
+        diameterBottom: 1,
+        tessellation: 3
+    })
 }

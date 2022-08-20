@@ -1,6 +1,7 @@
 import {
     Engine,
     Matrix,
+    Mesh,
     MeshBuilder,
     Scene,
     Space,
@@ -24,11 +25,20 @@ export class World extends TransformNode {
     private static readonly SectorCount = Math.pow(World.SectorIndexMax * 2 + 1, 3)
     private static readonly BoundaryGridScale = 20
 
+    public static Sectorize = (mesh: Mesh) => {
+        const scale = World.Size / mesh.scaling.x
+        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
+            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
+                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
+                    mesh.thinInstanceAdd(Matrix.Translation(x * scale, y * scale, z * scale), (x + y + z) == 3 * World.SectorIndexMax)
+                }
+            }
+        }
+    }
+
     constructor() {
         const scene = Engine.LastCreatedScene!
         super("World", scene)
-
-        console.log(`SectorCount = ${World.SectorCount}`)
 
         const boundaryTexture = Texture.LoadFromSvgString(`
             <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">
@@ -61,15 +71,7 @@ export class World extends TransformNode {
         boundary.scaling.setAll(World.Size)
         boundary.setParent(this)
 
-        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
-            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
-                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
-                    boundary.thinInstanceAdd(Matrix.Translation(x, y, z), (x + y + z) == 3 * World.SectorIndexMax)
-                }
-            }
-        }
-
-        scene.onAfterRenderObservable.add((scene, event) => { this._onAfterRender() })
+        World.Sectorize(boundary)
     }
 
     /**
@@ -77,40 +79,19 @@ export class World extends TransformNode {
      */
     public doSectorWrap = () => {
         const local = this.getPositionExpressedInLocalSpace()
-        if (local.z <= -World.HalfSize) {
-            vector3.copyFrom(Constant.ZAxis)
-            vector3.scaleInPlace(World.Size)
-            this.locallyTranslate(vector3)
+        this.doSectorWrapOnLocalAxis(local.x, Constant.XAxis)
+        this.doSectorWrapOnLocalAxis(local.y, Constant.YAxis)
+        this.doSectorWrapOnLocalAxis(local.z, Constant.ZAxis)
+    }
+
+    private doSectorWrapOnLocalAxis = (pointOnAxis: Number, axis: Vector3) => {
+        if (pointOnAxis <= -World.HalfSize) {
+            this.locallyTranslate(vector3.copyFrom(axis).scaleInPlace(World.Size))
         }
-        else if (World.HalfSize <= local.z) {
-            vector3.copyFrom(Constant.ZAxis)
-            vector3.scaleInPlace(-World.Size)
-            this.locallyTranslate(vector3)
-        }
-        else if (local.y <= -World.HalfSize) {
-            vector3.copyFrom(Constant.YAxis)
-            vector3.scaleInPlace(World.Size)
-            this.locallyTranslate(vector3)
-        }
-        else if (World.HalfSize <= local.y) {
-            vector3.copyFrom(Constant.YAxis)
-            vector3.scaleInPlace(-World.Size)
-            this.locallyTranslate(vector3)
-        }
-        else if (local.x <= -World.HalfSize) {
-            vector3.copyFrom(Constant.XAxis)
-            vector3.scaleInPlace(World.Size)
-            this.locallyTranslate(vector3)
-        }
-        else if (World.HalfSize <= local.x) {
-            vector3.copyFrom(Constant.XAxis)
-            vector3.scaleInPlace(-World.Size)
-            this.locallyTranslate(vector3)
+        else if (World.HalfSize <= pointOnAxis) {
+            this.locallyTranslate(vector3.copyFrom(axis).scaleInPlace(-World.Size))
         }
     }
 
     private _boundary = MeshBuilder.CreateBox("World.Boundary")
-
-    private _onAfterRender() {
-    }
 }

@@ -88,7 +88,6 @@ export class MainScene extends Scene {
         canvas.style.outline = "none"
 
         // Show the UI for 4 seconds when the mouse moves; otherwise hide it.
-        let uiIsVisible = false
         let showUiTimeoutId = 0
         let debugLayerSelection: any = null
 
@@ -97,31 +96,32 @@ export class MainScene extends Scene {
         })
 
         const showUi = () => {
-            if (!uiIsVisible) {
-                uiIsVisible = true
-                document.body.style.cursor = "auto"
-                this.debugLayer.show()
-                this.debugLayer.select(debugLayerSelection)
-                canvas.blur()
-                keyboardInput.resetPressedKeys()
-            }
-
+            document.body.style.cursor = "auto"
             clearTimeout(showUiTimeoutId)
             showUiTimeoutId = setTimeout(hideUi, 4000)
         }
 
         const hideUi = () => {
-            uiIsVisible = false
             document.body.style.cursor = "none"
-            this.debugLayer.hide()
-            canvas.focus()
         }
 
         const disableHideUi = () => {
             clearTimeout(showUiTimeoutId)
         }
 
-        hideUi()
+        const showInspector = () => {
+            this.debugLayer.select(debugLayerSelection)
+            this.debugLayer.show()
+            canvas.focus()
+        }
+
+        const hideInspector = () => {
+            this.debugLayer.hide()
+            canvas.focus()
+        }
+
+        showUi()
+        canvas.focus()
 
         canvas.onmousemove = () => {
             showUi()
@@ -141,7 +141,15 @@ export class MainScene extends Scene {
         document.onkeydown = (event: KeyboardEvent) => {
             switch (event.key) {
                 case "Escape":
-                    hideUi()
+                    if (!document.fullscreenElement) {
+                        hideUi()
+                        if (!this.debugLayer.isVisible()) {
+                            showInspector()
+                        }
+                        else {
+                            hideInspector()
+                        }
+                    }
                     break
                 case "Enter":
                     if (!document.fullscreenElement) {
