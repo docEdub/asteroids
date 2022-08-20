@@ -105,7 +105,6 @@ export class MainScene extends Scene {
         }
 
         showUi()
-
         document.onmousemove = () => {
             showUi()
         }
