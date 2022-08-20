@@ -1,5 +1,6 @@
 import {
     Engine,
+    Matrix,
     Scene,
     Space,
     UniversalCamera,
@@ -66,6 +67,12 @@ export class MainScene extends Scene {
         })
 
         this.onAfterRenderObservable.add((scene, state) => {
+            if (PlayerShip.ThrustEpsilon < playerShip.thrust) {
+                world.translate(Constant.ZAxis, -playerShip.thrust, Space.WORLD)
+            }
+
+            world.doSectorWrap()
+
             if (playerShip.pitch < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.pitch) {
                 world.rotateAround(Vector3.ZeroReadOnly, Constant.XAxis, playerShip.pitch)
             }
@@ -74,9 +81,6 @@ export class MainScene extends Scene {
             }
             if (playerShip.roll < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.roll) {
                 world.rotateAround(Vector3.ZeroReadOnly, Constant.ZAxis, playerShip.roll)
-            }
-            if (PlayerShip.ThrustEpsilon < playerShip.thrust) {
-                world.translate(Constant.ZAxis, -playerShip.thrust, Space.WORLD)
             }
         })
 
@@ -117,7 +121,7 @@ export class MainScene extends Scene {
             clearTimeout(showUiTimeoutId)
         }
 
-        showUi()
+        hideUi()
 
         canvas.onmousemove = () => {
             showUi()

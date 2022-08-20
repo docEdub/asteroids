@@ -7,7 +7,7 @@ import {
 export class PlayerShip extends TransformNode {
     private static readonly AngleIncrement = 0.01
     private static readonly ThrustIncrement = 0.01
-    private static readonly MaxThrust = 10
+    private static readonly MaxThrust = 5
 
     public static readonly AngleIncrementEpsilon = PlayerShip.AngleIncrement / 10
     public static readonly ThrustEpsilon = PlayerShip.ThrustIncrement / 10
