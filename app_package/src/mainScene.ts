@@ -79,9 +79,12 @@ export class MainScene extends Scene {
             }
         })
 
+        const canvas = document.getElementById("renderCanvas")!
+        canvas.style.outline = "none"
+
         // Get keyboard input working without clicking on screen.
         const focusCanvas = () => {
-            document.getElementById("renderCanvas")!.focus()
+            canvas.focus()
         }
 
         // Show the UI for 4 seconds when the mouse moves; otherwise hide it.
