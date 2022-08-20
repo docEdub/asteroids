@@ -134,8 +134,17 @@ export class MainScene extends Scene {
         }
 
         document.onkeydown = (event: KeyboardEvent) => {
-            if (event.key == "Escape") {
-                hideUi()
+            switch (event.key) {
+                case "Escape":
+                    hideUi()
+                    break
+                case "Enter":
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen()
+                    } else if (document.exitFullscreen) {
+                        document.exitFullscreen()
+                    }
+                    break
             }
         }
     }
