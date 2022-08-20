@@ -5,6 +5,8 @@ import {
     UniversalCamera,
     Vector3,
 } from "@babylonjs/core"
+import "@babylonjs/core/Debug/debugLayer"
+import "@babylonjs/inspector"
 
 import { Constant } from "./constant"
 import { KeyboardInput } from "./inputs/keyboardInput"
@@ -78,7 +80,9 @@ export class MainScene extends Scene {
         })
 
         // Get keyboard input working without clicking on screen.
-        document.getElementById("renderCanvas")!.focus()
+        const focusCanvas = () => {
+            document.getElementById("renderCanvas")!.focus()
+        }
 
         // Show the UI for 4 seconds when the mouse moves; otherwise hide it.
         let showUiTimeoutId = 0
@@ -87,12 +91,17 @@ export class MainScene extends Scene {
             clearTimeout(showUiTimeoutId)
 
             document.body.style.cursor = "auto"
+            this.debugLayer.setAsActiveScene()
+            this.debugLayer.show()
+            focusCanvas()
 
             showUiTimeoutId = setTimeout(hideUi, 4000)
         }
 
         const hideUi = () => {
             document.body.style.cursor = "none"
+            this.debugLayer.hide()
+            focusCanvas()
         }
 
         showUi()
