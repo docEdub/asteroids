@@ -15,10 +15,12 @@ export class World extends TransformNode {
     constructor (scene: Scene) {
         super("World", scene)
 
-        const boundary = this._boundary
         const boundaryMaterial = new StandardMaterial('World.Boundary')
         boundaryMaterial.emissiveColor.set(1, 1, 1)
         boundaryMaterial.wireframe = true
+
+        const boundary = this._boundary
+        boundary.isPickable = false
         boundary.material = boundaryMaterial
         boundary.scaling.setAll(World.HalfSize)
         boundary.setParent(this)
