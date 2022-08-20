@@ -15,7 +15,8 @@ export function initializeBabylonApp(options: InitializeBabylonAppOptions) {
 
     const canvas = options.canvas;
     const engine = new Engine(canvas);
-    const scene = new MainScene(engine)
+    const scene = new MainScene
+
     engine.runRenderLoop(() => {
         scene.render();
     });

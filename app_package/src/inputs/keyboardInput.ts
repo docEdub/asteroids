@@ -1,10 +1,13 @@
 import {
+    Engine,
     KeyboardEventTypes,
     Scene
 } from "@babylonjs/core";
 
 export class KeyboardInput {
-    constructor(scene: Scene) {
+    constructor() {
+        const scene = Engine.LastCreatedScene!
+
         scene.onKeyboardObservable.add((keyboardInfo) => {
             const key = keyboardInfo.event.key
             const pressed = keyboardInfo.type == KeyboardEventTypes.KEYDOWN

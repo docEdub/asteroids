@@ -14,15 +14,16 @@ import { PlayerShip } from "./gameObjects/playerShip"
 import { World } from "./gameObjects/world"
 
 export class MainScene extends Scene {
-    constructor (engine: Engine) {
+    constructor() {
+        const engine = Engine.LastCreatedEngine!
         super(engine)
 
         this.clearColor.set(0, 0, 0, 1)
         new UniversalCamera("Camera", Vector3.ZeroReadOnly)
 
-        const keyboardInput = new KeyboardInput(this)
-        const playerShip = new PlayerShip(this)
-        const world = new World(this)
+        const keyboardInput = new KeyboardInput
+        const playerShip = new PlayerShip
+        const world = new World
 
         this.onBeforeRenderObservable.add((scene, state) => {
             playerShip.resetOrientationIncrements()

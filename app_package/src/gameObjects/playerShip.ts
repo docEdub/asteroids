@@ -1,8 +1,7 @@
 import {
-    Mesh,
+    Engine,
     Scene,
     TransformNode,
-    Vector3
 } from "@babylonjs/core";
 
 export class PlayerShip extends TransformNode {
@@ -13,7 +12,8 @@ export class PlayerShip extends TransformNode {
     public static readonly AngleIncrementEpsilon = PlayerShip.AngleIncrement / 10
     public static readonly ThrustEpsilon = PlayerShip.ThrustIncrement / 10
 
-    constructor (scene: Scene) {
+    constructor () {
+        const scene = Engine.LastCreatedScene!
         super("PlayerShip", scene);
         scene.onBeforeRenderObservable.runCoroutineAsync(this._onBeforeRender());
     }

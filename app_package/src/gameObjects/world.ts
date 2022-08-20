@@ -1,10 +1,9 @@
 import {
-    Mesh,
+    Engine,
     MeshBuilder,
     Scene,
     StandardMaterial,
     TransformNode,
-    Vector3
 } from "@babylonjs/core"
 
 export class World extends TransformNode {
@@ -12,7 +11,8 @@ export class World extends TransformNode {
 
     private static readonly HalfSize = World.Size / 2
 
-    constructor (scene: Scene) {
+    constructor() {
+        const scene = Engine.LastCreatedScene!
         super("World", scene)
 
         const boundaryMaterial = new StandardMaterial('World.Boundary')
