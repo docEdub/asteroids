@@ -15,14 +15,13 @@ export class World extends TransformNode {
     constructor (scene: Scene) {
         super("World", scene)
 
-        const boundary = MeshBuilder.CreateBox("World.Boundary")
+        const boundary = this._boundary
         const boundaryMaterial = new StandardMaterial('World.Boundary')
         boundaryMaterial.emissiveColor.set(1, 1, 1)
         boundaryMaterial.wireframe = true
         boundary.material = boundaryMaterial
         boundary.scaling.setAll(World.HalfSize)
         boundary.setParent(this)
-        this._boundary = boundary
 
         scene.onBeforeRenderObservable.runCoroutineAsync(this._onBeforeRender())
     }
