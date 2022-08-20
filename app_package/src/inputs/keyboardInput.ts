@@ -62,6 +62,18 @@ export class KeyboardInput {
         })
     }
 
+    public resetPressedKeys = () => {
+        this.fireIsPressed = false
+        this.thrustIsPressed = false
+        this.warpIsPressed = false
+        this.yawNoseLeftIsPressed = false
+        this.yawNoseRightIsPressed = false
+        this.pitchNoseUpIsPressed = false
+        this.pitchNoseDownIsPressed = false
+        this.rollRightIsPressed = false
+        this.rollLeftIsPressed = false
+    }
+
     public fireIsPressed: boolean = false
     public thrustIsPressed: boolean = false
     public warpIsPressed: boolean = false

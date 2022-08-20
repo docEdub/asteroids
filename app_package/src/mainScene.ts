@@ -82,34 +82,61 @@ export class MainScene extends Scene {
         const canvas = document.getElementById("renderCanvas")!
         canvas.style.outline = "none"
 
-        // Get keyboard input working without clicking on screen.
-        const focusCanvas = () => {
-            canvas.focus()
-        }
-
         // Show the UI for 4 seconds when the mouse moves; otherwise hide it.
+        let uiIsVisible = false
         let showUiTimeoutId = 0
+        let debugLayerSelection: any = null
+
+        this.debugLayer.onSelectionChangedObservable.add((entity: any) => {
+            debugLayerSelection = entity
+        })
 
         const showUi = () => {
+            if (!uiIsVisible) {
+                uiIsVisible = true
+                document.body.style.cursor = "auto"
+                this.debugLayer.show()
+                this.debugLayer.select(debugLayerSelection)
+                canvas.blur()
+                keyboardInput.resetPressedKeys()
+            }
+
             clearTimeout(showUiTimeoutId)
-
-            document.body.style.cursor = "auto"
-            this.debugLayer.setAsActiveScene()
-            this.debugLayer.show()
-            focusCanvas()
-
             showUiTimeoutId = setTimeout(hideUi, 4000)
         }
 
         const hideUi = () => {
+            uiIsVisible = false
             document.body.style.cursor = "none"
             this.debugLayer.hide()
-            focusCanvas()
+            canvas.focus()
+        }
+
+        const disableHideUi = () => {
+            clearTimeout(showUiTimeoutId)
         }
 
         showUi()
-        document.onmousemove = () => {
+
+        canvas.onmousemove = () => {
             showUi()
+        }
+        canvas.onmouseenter = () => {
+            showUi()
+            canvas.focus()
+        }
+        canvas.onmouseleave = () => {
+            disableHideUi()
+            keyboardInput.resetPressedKeys()
+        }
+        canvas.onblur = () => {
+            keyboardInput.resetPressedKeys()
+        }
+
+        document.onkeydown = (event: KeyboardEvent) => {
+            if (event.key == "Escape") {
+                hideUi()
+            }
         }
     }
 }
