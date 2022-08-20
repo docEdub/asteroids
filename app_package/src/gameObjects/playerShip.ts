@@ -23,7 +23,7 @@ export class PlayerShip extends TransformNode {
     public roll = 0
     public thrust = 0
 
-    public resetOrientation() {
+    public resetOrientationIncrements() {
         this.yaw = 0
         this.pitch = 0
         this.roll = 0

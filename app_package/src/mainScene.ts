@@ -25,7 +25,7 @@ export class MainScene extends Scene {
         const world = new World(this)
 
         this.onBeforeRenderObservable.add((scene, state) => {
-            playerShip.resetOrientation()
+            playerShip.resetOrientationIncrements()
 
             if (keyboardInput.pitchNoseDownIsPressed) {
                 playerShip.pitchDown()
