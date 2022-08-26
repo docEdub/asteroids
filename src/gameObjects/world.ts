@@ -50,8 +50,7 @@ export class World extends TransformNode {
                 <style>
                     line {
                         fill: none;
-                        stroke: #222;
-                        stroke-opacity: "10%";
+                        stroke: #fff;
                         stroke-width: 16;
                     }
                 </style>
@@ -65,6 +64,7 @@ export class World extends TransformNode {
         boundaryMaterial.disableLighting = true
         boundaryMaterial.emissiveColor.set(1, 1, 1)
         boundaryMaterial.opacityTexture = boundaryTexture
+        boundaryMaterial.alpha = 0.05
 
         const boundary = this._boundary
         boundary.isPickable = false
