@@ -1,18 +1,31 @@
 {
-  "name": "npm-package-template",
+  "name": "asteroids",
   "version": "1.0.0",
   "description": "",
-  "private": "true",
-  "scripts": {
-    "install": "npm-recursive-install --skip-root",
-    "dev": "npm run build && concurrently \"npm --prefix ./app_package run dev\" \"npm --prefix ./test_package run dev\"",
-    "build": "npm --prefix ./app_package run build && npm --prefix ./test_package run build"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "build": "webpack --config ./webpack-dev.js --mode development --progress --color",
+    "start": "webpack serve --config ./webpack-dev.js --mode development --progress --color --https",
+    "help": "webpack serve --help=verbose"
+  },
   "devDependencies": {
-    "concurrently": "^6.2.1",
-    "recursive-install": "^1.4.0"
+    "@types/core-js": "2.5.5",
+    "html-webpack-plugin": "5.3.1",
+    "ts-loader": "9.3.1",
+    "webpack": "5.37.1",
+    "webpack-cli": "4.10.0",
+    "webpack-dev-server": "3.11.2"
+  },
+  "dependencies": {
+    "@babylonjs/core": "5.18.0",
+    "@babylonjs/gui": "5.18.0",
+    "@babylonjs/inspector": "5.18.0",
+    "@babylonjs/loaders": "5.18.0",
+    "@babylonjs/materials": "5.18.0",
+    "@babylonjs/post-processes": "5.18.0",
+    "@babylonjs/procedural-textures": "5.18.0",
+    "@babylonjs/serializers": "5.18.0"
   }
 }

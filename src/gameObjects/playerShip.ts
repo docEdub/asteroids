@@ -25,13 +25,13 @@ export class PlayerShip extends TransformNode {
         hullMaterial.emissiveColor.set(1, 1, 1)
         hullMaterial.wireframe = true
 
-        const hull = this._hull
-        hull.material = hullMaterial
-        hull.position.set(0, 0, 100)
-        hull.scaling.setAll(10)
-        hull.setParent(this)
+        // const hull = this._hull
+        // hull.material = hullMaterial
+        // hull.position.set(0, 0, 100)
+        // hull.scaling.setAll(10)
+        // hull.setParent(this)
 
-        World.Sectorize(hull)
+        // World.Sectorize(hull)
     }
 
     public pitch = 0

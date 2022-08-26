@@ -84,7 +84,7 @@ export class MainScene extends Scene {
             }
         })
 
-        const canvas = document.getElementById("renderCanvas")!
+        const canvas = document.getElementById("BabylonCanvas")!
         canvas.style.outline = "none"
 
         // Show the UI for 4 seconds when the mouse moves; otherwise hide it.
@@ -97,8 +97,8 @@ export class MainScene extends Scene {
 
         const showUi = () => {
             document.body.style.cursor = "auto"
-            clearTimeout(showUiTimeoutId)
-            showUiTimeoutId = setTimeout(hideUi, 4000)
+            window.clearTimeout(showUiTimeoutId)
+            showUiTimeoutId = window.setTimeout(hideUi, 4000)
         }
 
         const hideUi = () => {
@@ -106,7 +106,7 @@ export class MainScene extends Scene {
         }
 
         const disableHideUi = () => {
-            clearTimeout(showUiTimeoutId)
+            window.clearTimeout(showUiTimeoutId)
         }
 
         const showInspector = () => {
