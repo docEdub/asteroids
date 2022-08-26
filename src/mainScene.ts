@@ -20,11 +20,12 @@ export class MainScene extends Scene {
         super(engine)
 
         this.clearColor.set(0, 0, 0, 1)
-        new UniversalCamera("Camera", Vector3.ZeroReadOnly)
 
         const keyboardInput = new KeyboardInput
-        const playerShip = new PlayerShip
         const world = new World
+        const playerShip = new PlayerShip
+        const camera = new UniversalCamera("Camera", Vector3.ZeroReadOnly)
+        camera.parent = playerShip
 
         this.onBeforeRenderObservable.add((scene, state) => {
             playerShip.resetOrientationIncrements()
@@ -68,20 +69,22 @@ export class MainScene extends Scene {
 
         this.onAfterRenderObservable.add((scene, state) => {
             if (PlayerShip.ThrustEpsilon < playerShip.thrust) {
-                world.translate(Constant.ZAxis, -playerShip.thrust, Space.WORLD)
+                playerShip.translate(Constant.ZAxis, playerShip.thrust)
             }
 
-            world.doSectorWrap()
+            playerShip.doSectorWrap()
 
             if (playerShip.pitch < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.pitch) {
-                world.rotateAround(Vector3.ZeroReadOnly, Constant.XAxis, playerShip.pitch)
+                playerShip.rotateAround(playerShip.position, playerShip.right, -playerShip.pitch)
             }
             if (playerShip.yaw < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.yaw) {
-                world.rotateAround(Vector3.ZeroReadOnly, Constant.YAxis, playerShip.yaw)
+                playerShip.rotateAround(playerShip.position, playerShip.up, -playerShip.yaw)
             }
             if (playerShip.roll < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.roll) {
-                world.rotateAround(Vector3.ZeroReadOnly, Constant.ZAxis, playerShip.roll)
+                playerShip.rotateAround(playerShip.position, playerShip.forward, -playerShip.roll)
             }
+
+            playerShip.updateInstances()
         })
 
         const canvas = document.getElementById("BabylonCanvas")!

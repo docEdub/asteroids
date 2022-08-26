@@ -12,8 +12,6 @@ import {
 import { Constant } from "../constant"
 import { Texture } from "../Materials/Textures/texture"
 
-const vector3 = new Vector3
-
 export class World extends TransformNode {
     public static readonly Size = 1000
     public static readonly HalfSize = World.Size / 2
@@ -72,25 +70,6 @@ export class World extends TransformNode {
         boundary.setParent(this)
 
         World.Sectorize(boundary)
-    }
-
-    /**
-     *  Keeps the world in the middle sector no matter how far the player ship moves.
-     */
-    public doSectorWrap = () => {
-        const local = this.getPositionExpressedInLocalSpace()
-        this.doSectorWrapOnLocalAxis(local.x, Constant.XAxis)
-        this.doSectorWrapOnLocalAxis(local.y, Constant.YAxis)
-        this.doSectorWrapOnLocalAxis(local.z, Constant.ZAxis)
-    }
-
-    private doSectorWrapOnLocalAxis = (pointOnAxis: Number, axis: Vector3) => {
-        if (pointOnAxis <= -World.HalfSize) {
-            this.locallyTranslate(vector3.copyFrom(axis).scaleInPlace(World.Size))
-        }
-        else if (World.HalfSize <= pointOnAxis) {
-            this.locallyTranslate(vector3.copyFrom(axis).scaleInPlace(-World.Size))
-        }
     }
 
     private _boundary = MeshBuilder.CreateBox("World.Boundary")

@@ -1,11 +1,17 @@
 import {
     Engine,
+    Matrix,
     MeshBuilder,
     Scene,
+    Space,
     StandardMaterial,
     TransformNode,
+    Vector3,
 } from "@babylonjs/core";
+import { Constant } from "../constant"
 import { World } from "./world"
+
+const vector3 = new Vector3
 
 export class PlayerShip extends TransformNode {
     private static readonly AngleIncrement = 0.015
@@ -25,13 +31,34 @@ export class PlayerShip extends TransformNode {
         hullMaterial.emissiveColor.set(1, 1, 1)
         hullMaterial.wireframe = true
 
-        // const hull = this._hull
-        // hull.material = hullMaterial
-        // hull.position.set(0, 0, 100)
-        // hull.scaling.setAll(10)
-        // hull.setParent(this)
+        const hull = MeshBuilder.CreateCylinder("PlayerShip.Hull", {
+            diameterTop: 0,
+            diameterBottom: 1,
+            tessellation: 3
+        })
+        hull.material = hullMaterial
+        hull.scaling.setAll(50)
+        hull.rotation.x = Math.PI / 2
+        hull.bakeCurrentTransformIntoVertices()
+        hull.rotation.z = -Math.PI / 2
+        hull.bakeCurrentTransformIntoVertices()
+        // hull.position.y = -1.5
+        hull.position.z = 10
+        hull.setParent(this)
+        this.hull = hull
+        hull.clone()
 
-        // World.Sectorize(hull)
+        const scale = World.Size / hull.scaling.x
+        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
+            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
+                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
+                    if (x + y + z == 0) {
+                        continue
+                    }
+                    hull.thinInstanceAdd(Matrix.Translation(x * scale, y * scale, z * scale), (x + y + z) == 3 * World.SectorIndexMax)
+                }
+            }
+        }
     }
 
     public pitch = 0
@@ -93,9 +120,51 @@ export class PlayerShip extends TransformNode {
 
     }
 
-    private _hull = MeshBuilder.CreateCylinder("PlayerShip.Hull", {
-        diameterTop: 0,
-        diameterBottom: 1,
-        tessellation: 3
-    })
+    public updateInstances() {
+        let thinInstanceIndex = 0
+
+        const scale = World.Size / this.hull.scaling.x
+        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
+            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
+                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
+                    if (x + y + z == 0) {
+                        continue
+                    }
+
+                    const rotationXform = new Matrix
+                    this.rotationQuaternion?.toRotationMatrix(rotationXform)
+
+                    let xform = Matrix.Translation(x * scale, y * scale, z * scale)
+                    if (rotationXform) {
+                        xform = rotationXform.multiply(xform)
+                        xform = xform.multiply(rotationXform.invert())
+                    }
+                    this.hull.thinInstanceSetMatrixAt(thinInstanceIndex, xform, (x + y + z) == 3 * World.SectorIndexMax)
+                    thinInstanceIndex++
+                }
+            }
+        }
+    }
+
+    /**
+     *  Keeps the world in the middle sector no matter how far the player ship moves.
+     */
+    public doSectorWrap() {
+        const local = this.getPositionExpressedInLocalSpace()
+        this.wrapPositionOnAxis(this.position.x, Constant.XAxis)
+        this.wrapPositionOnAxis(this.position.y, Constant.YAxis)
+        this.wrapPositionOnAxis(this.position.z, Constant.ZAxis)
+    }
+
+    private wrapPositionOnAxis(position: Number, axis: Vector3) {
+        if (position <= -World.HalfSize) {
+            this.translate(axis, World.Size, Space.WORLD)
+        }
+        else if (World.HalfSize <= position) {
+            this.translate(axis, -World.Size, Space.WORLD)
+        }
+    }
+
+    private hull = null
+    private instanceTransforms = null
 }
