@@ -23,11 +23,14 @@ export class World extends TransformNode {
     private static readonly SectorCount = Math.pow(World.SectorIndexMax * 2 + 1, 3)
     private static readonly BoundaryGridScale = 20
 
-    public static Sectorize = (mesh: Mesh) => {
+    public static Sectorize = (mesh: Mesh, skipCenter: boolean = false) => {
         const scale = World.Size / mesh.scaling.x
         for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
             for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
                 for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
+                    if (skipCenter && x + y + z == 0) {
+                        continue
+                    }
                     mesh.thinInstanceAdd(Matrix.Translation(x * scale, y * scale, z * scale), (x + y + z) == 3 * World.SectorIndexMax)
                 }
             }

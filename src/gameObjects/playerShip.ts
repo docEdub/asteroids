@@ -48,17 +48,8 @@ export class PlayerShip extends TransformNode {
         this.hull = hull
         hull.clone()
 
-        const scale = World.Size / hull.scaling.x
-        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
-            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
-                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
-                    if (x + y + z == 0) {
-                        continue
-                    }
-                    hull.thinInstanceAdd(Matrix.Translation(x * scale, y * scale, z * scale), (x + y + z) == 3 * World.SectorIndexMax)
-                }
-            }
-        }
+        World.Sectorize(this.hull, true)
+        this.updateInstances()
     }
 
     public pitch = 0
