@@ -17,17 +17,20 @@ const translationXform = new Matrix
 const vector3 = new Vector3
 
 export class PlayerShip extends TransformNode {
-    private static readonly AngleIncrement = 0.015
-    private static readonly ThrustIncrement = 0.01
+    private static readonly AngleIncrement = 0.03
+    private static readonly ThrustIncrement = 0.05
     private static readonly MaxThrust = 5
+    private static readonly CoastFactor = 0.0025
 
     private static readonly AngleIncrementEpsilon = PlayerShip.AngleIncrement / 10
     private static readonly ThrustEpsilon = PlayerShip.ThrustIncrement / 10
+    private static readonly ThrustEpsilonSquared = PlayerShip.ThrustEpsilon * PlayerShip.ThrustEpsilon
+    private static readonly MaxThrustSquared = PlayerShip.MaxThrust * PlayerShip.MaxThrust
 
     private pitch = 0
     private yaw = 0
     private roll = 0
-    private thrust = 0
+    private thrustVector = new Vector3
     private hull = MeshBuilder.CreateCylinder("PlayerShip.Hull", {
         diameterTop: 0,
         diameterBottom: 1,
@@ -91,16 +94,16 @@ export class PlayerShip extends TransformNode {
         this.roll = PlayerShip.AngleIncrement
     }
 
-    public increaseThrust() {
-        if (this.thrust < PlayerShip.MaxThrust) {
-            this.thrust = Math.min(this.thrust + PlayerShip.ThrustIncrement, PlayerShip.MaxThrust)
+    public thrust() {
+        this.forward.scaleToRef(PlayerShip.ThrustIncrement, vector3)
+        this.thrustVector.addInPlace(vector3)
+        if (PlayerShip.MaxThrustSquared < this.thrustVector.lengthSquared()) {
+            this.thrustVector.scaleInPlace(PlayerShip.MaxThrust / this.thrustVector.length())
         }
     }
 
-    public decreaseThrust() {
-        if (0 < this.thrust) {
-            this.thrust = Math.max(0, this.thrust - PlayerShip.ThrustIncrement)
-        }
+    public coast() {
+        this.thrustVector.scaleInPlace(1 - PlayerShip.CoastFactor)
     }
 
     public fire() {
@@ -159,8 +162,8 @@ export class PlayerShip extends TransformNode {
     }
 
     private onAfterRender() {
-        if (PlayerShip.ThrustEpsilon < this.thrust) {
-            this.translate(Constant.ZAxis, this.thrust)
+        if (PlayerShip.ThrustEpsilonSquared < this.thrustVector.lengthSquared()) {
+            this.position.addInPlace(this.thrustVector)
         }
 
         this.doSectorWrap()

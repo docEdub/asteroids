@@ -52,10 +52,10 @@ export class MainScene extends Scene {
             }
 
             if (keyboardInput.thrustIsPressed) {
-                playerShip.increaseThrust()
+                playerShip.thrust()
             }
             else {
-                playerShip.decreaseThrust()
+                playerShip.coast()
             }
 
             if (keyboardInput.fireIsPressed) {
