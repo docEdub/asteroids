@@ -21,8 +21,18 @@ export class PlayerShip extends TransformNode {
     private static readonly ThrustIncrement = 0.01
     private static readonly MaxThrust = 5
 
-    public static readonly AngleIncrementEpsilon = PlayerShip.AngleIncrement / 10
-    public static readonly ThrustEpsilon = PlayerShip.ThrustIncrement / 10
+    private static readonly AngleIncrementEpsilon = PlayerShip.AngleIncrement / 10
+    private static readonly ThrustEpsilon = PlayerShip.ThrustIncrement / 10
+
+    private pitch = 0
+    private yaw = 0
+    private roll = 0
+    private thrust = 0
+    private hull = MeshBuilder.CreateCylinder("PlayerShip.Hull", {
+        diameterTop: 0,
+        diameterBottom: 1,
+        tessellation: 3
+    })
 
     constructor () {
         const scene = Engine.LastCreatedScene!
@@ -34,31 +44,22 @@ export class PlayerShip extends TransformNode {
         hullMaterial.emissiveColor.set(1, 1, 1)
         hullMaterial.wireframe = true
 
-        const hull = MeshBuilder.CreateCylinder("PlayerShip.Hull", {
-            diameterTop: 0,
-            diameterBottom: 1,
-            tessellation: 3
-        })
+        const hull = this.hull
         hull.material = hullMaterial
         hull.scaling.setAll(50)
         hull.rotation.x = Math.PI / 2
         hull.bakeCurrentTransformIntoVertices()
         hull.rotation.z = -Math.PI / 2
         hull.bakeCurrentTransformIntoVertices()
-        // hull.position.y = -1.5
         hull.position.z = 10
         hull.setParent(this)
-        this.hull = hull
-        hull.clone()
+        hull.clone() // Makes hull for sector 0.
+        World.Sectorize(this.hull, false)
 
-        World.Sectorize(this.hull, true)
-        this.updateInstances()
+        scene.onAfterRenderObservable.add((scene, eventState) => {
+            this.onAfterRender()
+        })
     }
-
-    public pitch = 0
-    public yaw = 0
-    public roll = 0
-    public thrust = 0
 
     public resetOrientationIncrements() {
         this.yaw = 0
@@ -114,14 +115,14 @@ export class PlayerShip extends TransformNode {
 
     }
 
-    public updateInstances() {
+    private updateInstances() {
         let thinInstanceIndex = 0
 
         const scale = World.Size / this.hull.scaling.x
         for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
             for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
                 for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
-                    if (x + y + z == 0) {
+                    if (x + y + z == 0) { // Skip sector 0.
                         continue
                     }
 
@@ -140,10 +141,9 @@ export class PlayerShip extends TransformNode {
     }
 
     /**
-     *  Keeps the world in the middle sector no matter how far the player ship moves.
+     *  Keeps the world in the center sector no matter how far the player ship moves.
      */
-    public doSectorWrap() {
-        const local = this.getPositionExpressedInLocalSpace()
+    private doSectorWrap() {
         this.wrapPositionOnAxis(this.position.x, Constant.XAxis)
         this.wrapPositionOnAxis(this.position.y, Constant.YAxis)
         this.wrapPositionOnAxis(this.position.z, Constant.ZAxis)
@@ -158,6 +158,23 @@ export class PlayerShip extends TransformNode {
         }
     }
 
-    private hull = null
-    private instanceTransforms = null
+    private onAfterRender() {
+        if (PlayerShip.ThrustEpsilon < this.thrust) {
+            this.translate(Constant.ZAxis, this.thrust)
+        }
+
+        this.doSectorWrap()
+
+        if (this.pitch < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < this.pitch) {
+            this.rotateAround(this.position, this.right, -this.pitch)
+        }
+        if (this.yaw < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < this.yaw) {
+            this.rotateAround(this.position, this.up, -this.yaw)
+        }
+        if (this.roll < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < this.roll) {
+            this.rotateAround(this.position, this.forward, -this.roll)
+        }
+
+        this.updateInstances()
+    }
 }

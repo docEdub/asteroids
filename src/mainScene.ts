@@ -67,26 +67,6 @@ export class MainScene extends Scene {
             }
         })
 
-        this.onAfterRenderObservable.add((scene, state) => {
-            if (PlayerShip.ThrustEpsilon < playerShip.thrust) {
-                playerShip.translate(Constant.ZAxis, playerShip.thrust)
-            }
-
-            playerShip.doSectorWrap()
-
-            if (playerShip.pitch < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.pitch) {
-                playerShip.rotateAround(playerShip.position, playerShip.right, -playerShip.pitch)
-            }
-            if (playerShip.yaw < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.yaw) {
-                playerShip.rotateAround(playerShip.position, playerShip.up, -playerShip.yaw)
-            }
-            if (playerShip.roll < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < playerShip.roll) {
-                playerShip.rotateAround(playerShip.position, playerShip.forward, -playerShip.roll)
-            }
-
-            playerShip.updateInstances()
-        })
-
         const canvas = document.getElementById("BabylonCanvas")!
         canvas.style.outline = "none"
 

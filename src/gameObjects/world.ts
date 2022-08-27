@@ -23,12 +23,12 @@ export class World extends TransformNode {
     private static readonly SectorCount = Math.pow(World.SectorIndexMax * 2 + 1, 3)
     private static readonly BoundaryGridScale = 20
 
-    public static Sectorize = (mesh: Mesh, skipCenter: boolean = false) => {
+    public static Sectorize = (mesh: Mesh, sectorizeCenter: boolean = true) => {
         const scale = World.Size / mesh.scaling.x
         for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
             for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
                 for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
-                    if (skipCenter && x + y + z == 0) {
+                    if (!sectorizeCenter && x + y + z == 0) {
                         continue
                     }
                     mesh.thinInstanceAdd(Matrix.Translation(x * scale, y * scale, z * scale), (x + y + z) == 3 * World.SectorIndexMax)
@@ -42,16 +42,16 @@ export class World extends TransformNode {
         super("World", scene)
 
         const boundaryTexture = Texture.LoadFromSvgString(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">
-                <line x1="0%" y1="0%" x2="100%" y2="0%"/>
-                <line x1="100%" y1="0%" x2="100%" y2="100%"/>
-                <line x1="100%" y1="100%" x2="0%" y2="100%"/>
-                <line x1="0%" y1="1000%" x2="0%" y2="0%"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                <line x1="0" y1="0" x2="64" y2="0"/>
+                <line x1="64" y1="0" x2="64" y2="64"/>
+                <line x1="64" y1="64" x2="0" y2="64"/>
+                <line x1="0" y1="64" x2="0" y2="0"/>
                 <style>
                     line {
                         fill: none;
                         stroke: #fff;
-                        stroke-width: 16;
+                        stroke-width: 2;
                     }
                 </style>
             </svg>
