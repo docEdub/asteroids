@@ -6,8 +6,8 @@ import {
     UniversalCamera,
     Vector3,
 } from "@babylonjs/core"
-import "@babylonjs/core/Debug/debugLayer"
-import "@babylonjs/inspector"
+// import "@babylonjs/core/Debug/debugLayer"
+// import "@babylonjs/inspector"
 
 import { Constant } from "./constant"
 import { KeyboardInput } from "./inputs/keyboardInput"
@@ -113,14 +113,14 @@ export class MainScene extends Scene {
         }
 
         const showInspector = () => {
-            this.debugLayer.select(debugLayerSelection)
-            this.debugLayer.show()
-            canvas.focus()
+            // this.debugLayer.select(debugLayerSelection)
+            // this.debugLayer.show()
+            // canvas.focus()
         }
 
         const hideInspector = () => {
-            this.debugLayer.hide()
-            canvas.focus()
+            // this.debugLayer.hide()
+            // canvas.focus()
         }
 
         showUi()
