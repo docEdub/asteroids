@@ -9,6 +9,7 @@ import {
     Vector3,
 } from "@babylonjs/core";
 import { Constant } from "../constant"
+import { Shot } from "./shot"
 import { World } from "./world"
 
 const instanceXform = new Matrix
@@ -18,9 +19,10 @@ const vector3 = new Vector3
 
 export class PlayerShip extends TransformNode {
     private static readonly AngleIncrement = 0.03
-    private static readonly ThrustIncrement = 0.05
+    private static readonly ThrustIncrement = 0.03
     private static readonly MaxThrust = 5
     private static readonly CoastFactor = 0.0025
+    private static readonly FireDelay = 100 // ms
 
     private static readonly AngleIncrementEpsilon = PlayerShip.AngleIncrement / 10
     private static readonly ThrustEpsilon = PlayerShip.ThrustIncrement / 10
@@ -36,6 +38,10 @@ export class PlayerShip extends TransformNode {
         diameterBottom: 1,
         tessellation: 3
     })
+    private shots = [ new Shot, new Shot, new Shot, new Shot, new Shot ]
+    private shotCount = 0
+    private maxShotCount = this.shots.length
+    private lastFireTime = 0
 
     constructor () {
         const scene = Engine.LastCreatedScene!
@@ -56,8 +62,12 @@ export class PlayerShip extends TransformNode {
         hull.bakeCurrentTransformIntoVertices()
         hull.position.z = 10
         hull.setParent(this)
-        hull.clone() // Makes hull for sector 0.
-        World.Sectorize(this.hull, false)
+        World.Sectorize(this.hull)
+
+        for (let i = 0; i < this.maxShotCount; i++) {
+            const shot = this.shots[i]
+            shot.position.z = 50 * i
+        }
 
         scene.onAfterRenderObservable.add((scene, eventState) => {
             this.onAfterRender()
@@ -107,7 +117,19 @@ export class PlayerShip extends TransformNode {
     }
 
     public fire() {
-
+        const now = Date.now()
+        if (PlayerShip.FireDelay < now - this.lastFireTime) {
+            for (let i = 0; i < this.maxShotCount; i++) {
+                const shot = this.shots[i]
+                if (!shot.isActive) {
+                    vector3.copyFrom(this.position)
+                    this.forward.scaleAndAddToRef(60, vector3)
+                    shot.activate(vector3, this.rotationQuaternion)
+                    this.lastFireTime = now
+                    return
+                }
+            }
+        }
     }
 
     public hide() {
@@ -118,55 +140,12 @@ export class PlayerShip extends TransformNode {
 
     }
 
-    private updateInstances() {
-        let thinInstanceIndex = 0
-
-        const scale = World.Size / this.hull.scaling.x
-        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
-            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
-                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
-                    if (x + y + z == 0) { // Skip sector 0.
-                        continue
-                    }
-
-                    const worldXform = this.getWorldMatrix()
-                    worldXform.getRotationMatrixToRef(rotationXform)
-                    this.rotationQuaternion?.toRotationMatrix(rotationXform)
-                    Matrix.TranslationToRef(x * scale, y * scale, z * scale, translationXform)
-                    rotationXform.multiplyToRef(translationXform, instanceXform)
-                    rotationXform.invertToRef(rotationXform)
-                    instanceXform.multiplyToRef(rotationXform, instanceXform)
-                    this.hull.thinInstanceSetMatrixAt(thinInstanceIndex, instanceXform, (x + y + z) == 3 * World.SectorIndexMax)
-                    thinInstanceIndex++
-                }
-            }
-        }
-    }
-
-    /**
-     *  Keeps the world in the center sector no matter how far the player ship moves.
-     */
-    private doSectorWrap() {
-        this.wrapPositionOnAxis(this.position.x, Constant.XAxis)
-        this.wrapPositionOnAxis(this.position.y, Constant.YAxis)
-        this.wrapPositionOnAxis(this.position.z, Constant.ZAxis)
-    }
-
-    private wrapPositionOnAxis(position: Number, axis: Vector3) {
-        if (position <= -World.HalfSize) {
-            this.translate(axis, World.Size, Space.WORLD)
-        }
-        else if (World.HalfSize <= position) {
-            this.translate(axis, -World.Size, Space.WORLD)
-        }
-    }
-
     private onAfterRender() {
         if (PlayerShip.ThrustEpsilonSquared < this.thrustVector.lengthSquared()) {
             this.position.addInPlace(this.thrustVector)
         }
 
-        this.doSectorWrap()
+        World.WrapNode(this)
 
         if (this.pitch < -PlayerShip.AngleIncrementEpsilon || PlayerShip.AngleIncrementEpsilon < this.pitch) {
             this.rotateAround(this.position, this.right, -this.pitch)
@@ -178,6 +157,6 @@ export class PlayerShip extends TransformNode {
             this.rotateAround(this.position, this.forward, -this.roll)
         }
 
-        this.updateInstances()
+        World.UpdateSectorizedInstances(this, this.hull)
     }
 }

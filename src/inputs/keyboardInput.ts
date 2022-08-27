@@ -48,7 +48,6 @@ export class KeyboardInput {
         })
 
         scene.onAfterRenderObservable.add((scene, state) => {
-            this.fireIsPressed = false
             this.warpIsPressed = false
         })
     }

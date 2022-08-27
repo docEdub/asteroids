@@ -12,6 +12,11 @@ import {
 import { Constant } from "../constant"
 import { Texture } from "../Materials/Textures/texture"
 
+const instanceXform = new Matrix
+const rotationXform = new Matrix
+const translationXform = new Matrix
+const vector3 = new Vector3
+
 export class World extends TransformNode {
     public static readonly Size = 1000
     public static readonly HalfSize = World.Size / 2
@@ -23,17 +28,58 @@ export class World extends TransformNode {
     private static readonly SectorCount = Math.pow(World.SectorIndexMax * 2 + 1, 3)
     private static readonly BoundaryGridScale = 20
 
-    public static Sectorize = (mesh: Mesh, sectorizeCenter: boolean = true) => {
+    /**
+     * Creates an instance of the given mesh in each sector.
+     *
+     * @param mesh
+     * @param sectorizeCenter
+     */
+    public static Sectorize(mesh: Mesh) {
         const scale = World.Size / mesh.scaling.x
         for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
             for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
                 for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
-                    if (!sectorizeCenter && x + y + z == 0) {
-                        continue
-                    }
                     mesh.thinInstanceAdd(Matrix.Translation(x * scale, y * scale, z * scale), (x + y + z) == 3 * World.SectorIndexMax)
                 }
             }
+        }
+    }
+
+    public static UpdateSectorizedInstances(node: TransformNode, mesh: Mesh) {
+        let thinInstanceIndex = 0
+        const scale = World.Size / mesh.scaling.x
+        for (let x = -World.SectorIndexMax; x <= World.SectorIndexMax ; x++) {
+            for (let y = -World.SectorIndexMax; y <= World.SectorIndexMax; y++) {
+                for (let z = -World.SectorIndexMax; z <= World.SectorIndexMax; z++) {
+                    const worldXform = node.getWorldMatrix()
+                    worldXform.getRotationMatrixToRef(rotationXform)
+                    node.rotationQuaternion?.toRotationMatrix(rotationXform)
+                    Matrix.TranslationToRef(x * scale, y * scale, z * scale, translationXform)
+                    rotationXform.multiplyToRef(translationXform, instanceXform)
+                    rotationXform.invertToRef(rotationXform)
+                    instanceXform.multiplyToRef(rotationXform, instanceXform)
+                    mesh.thinInstanceSetMatrixAt(thinInstanceIndex, instanceXform, (x + y + z) == 3 * World.SectorIndexMax)
+                    thinInstanceIndex++
+                }
+            }
+        }
+    }
+
+    /**
+     *  Keeps the given node in the center sector no matter how far it moves.
+     */
+     public static WrapNode(node: TransformNode) {
+        World.WrapNodePositionOnAxis(node, node.position.x, Constant.XAxis)
+        World.WrapNodePositionOnAxis(node, node.position.y, Constant.YAxis)
+        World.WrapNodePositionOnAxis(node, node.position.z, Constant.ZAxis)
+    }
+
+    private static WrapNodePositionOnAxis(node: TransformNode, position: Number, axis: Vector3) {
+        if (position < -World.HalfSize) {
+            node.translate(axis, World.Size, Space.WORLD)
+        }
+        else if (World.HalfSize < position) {
+            node.translate(axis, -World.Size, Space.WORLD)
         }
     }
 
