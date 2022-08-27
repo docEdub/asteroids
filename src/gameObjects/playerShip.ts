@@ -11,10 +11,8 @@ import {
 import { Constant } from "../constant"
 import { World } from "./world"
 
-const instanceXform1 = new Matrix
-const instanceXform2 = new Matrix
-const rotationXform1 = new Matrix
-const rotationXform2 = new Matrix
+const instanceXform = new Matrix
+const rotationXform = new Matrix
 const translationXform = new Matrix
 const vector3 = new Vector3
 
@@ -128,13 +126,13 @@ export class PlayerShip extends TransformNode {
                     }
 
                     const worldXform = this.getWorldMatrix()
-                    worldXform.getRotationMatrixToRef(rotationXform1)
-                    this.rotationQuaternion?.toRotationMatrix(rotationXform1)
+                    worldXform.getRotationMatrixToRef(rotationXform)
+                    this.rotationQuaternion?.toRotationMatrix(rotationXform)
                     Matrix.TranslationToRef(x * scale, y * scale, z * scale, translationXform)
-                    rotationXform1.multiplyToRef(translationXform, instanceXform1)
-                    rotationXform1.invertToRef(rotationXform1)
-                    instanceXform1.multiplyToRef(rotationXform1, instanceXform1)
-                    this.hull.thinInstanceSetMatrixAt(thinInstanceIndex, instanceXform1, (x + y + z) == 3 * World.SectorIndexMax)
+                    rotationXform.multiplyToRef(translationXform, instanceXform)
+                    rotationXform.invertToRef(rotationXform)
+                    instanceXform.multiplyToRef(rotationXform, instanceXform)
+                    this.hull.thinInstanceSetMatrixAt(thinInstanceIndex, instanceXform, (x + y + z) == 3 * World.SectorIndexMax)
                     thinInstanceIndex++
                 }
             }
